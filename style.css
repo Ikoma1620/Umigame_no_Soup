@@ -1,0 +1,654 @@
+
+/* ==============================
+Google Font
+============================== */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
+
+/* ==============================
+基本設定
+============================== */
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+html,
+body{
+height:100%;
+}
+
+body{
+font-family:"Noto Sans JP",sans-serif;
+background:#EAF7FB;
+color:#1A3C52;
+overflow:hidden;
+}
+
+/* ==============================
+全体レイアウト
+============================== */
+
+.main-container{
+display:flex;
+width:100%;
+height:100vh;
+}
+
+/* ==============================
+左パネル
+============================== */
+
+.left-panel{
+flex:2;
+display:flex;
+flex-direction:column;
+overflow:hidden;
+
+border-right:2px solid #A8DDE8;
+}
+
+/* ==============================
+Header
+============================== */
+
+header{
+
+background:
+linear-gradient(
+    135deg,
+    #1B6CA8 0%,
+    #1A9DC0 55%,
+    #22B5A5 100%
+);
+
+color:white;
+
+display:flex;
+align-items:center;
+justify-content:space-between;
+
+padding:14px 18px;
+
+flex-shrink:0;
+
+box-shadow:0 3px 8px rgba(0,0,0,.12);
+}
+
+header h1{
+
+font-size:22px;
+font-weight:700;
+
+}
+
+/* ==============================
+Q&Aボタン
+============================== */
+
+.qa-button{
+
+border:none;
+
+background:rgba(255,255,255,.18);
+
+color:white;
+
+padding:8px 16px;
+
+border-radius:25px;
+
+cursor:pointer;
+
+font-size:13px;
+
+font-weight:bold;
+
+transition:.2s;
+
+border:1px solid rgba(255,255,255,.45);
+
+}
+
+.qa-button:hover{
+
+background:rgba(255,255,255,.30);
+
+}
+
+/* ==============================
+問題カード
+============================== */
+
+.question-display{
+
+margin:12px;
+
+background:white;
+
+border-radius:14px;
+
+border:2px solid #5BB8D4;
+
+padding:18px;
+
+font-size:16px;
+
+line-height:1.6;
+
+color:#0D4E72;
+
+font-weight:500;
+
+box-shadow:0 2px 6px rgba(0,0,0,.08);
+
+}
+
+/* ==============================
+フィルター
+============================== */
+
+.filter-container{
+
+margin:0 12px 12px;
+
+padding:12px;
+
+background:white;
+
+border-radius:12px;
+
+border:1px solid #A8DDE8;
+
+display:flex;
+
+align-items:center;
+
+gap:12px;
+
+flex-wrap:wrap;
+
+}
+
+.filter-container strong{
+
+color:#1A9DC0;
+
+}
+
+.filter-container label{
+
+display:flex;
+
+align-items:center;
+
+gap:5px;
+
+font-size:13px;
+
+}
+
+.filter-container select{
+
+padding:5px 8px;
+
+border-radius:7px;
+
+border:1px solid #A8DDE8;
+
+background:#F2FAFD;
+
+cursor:pointer;
+
+}
+
+.filter-container button{
+
+margin-left:auto;
+
+border:none;
+
+cursor:pointer;
+
+color:white;
+
+background:#1A9DC0;
+
+padding:7px 18px;
+
+border-radius:8px;
+
+font-weight:bold;
+
+transition:.15s;
+
+}
+
+.filter-container button:hover{
+
+background:#1B6CA8;
+
+}
+
+/* ==============================
+テーブル
+============================== */
+
+#tableWrapper{
+
+flex:1;
+
+overflow:auto;
+
+margin:0 12px 12px;
+
+background:white;
+
+border-radius:12px;
+
+border:1px solid #A8DDE8;
+
+}
+
+table{
+
+width:100%;
+
+border-collapse:collapse;
+
+}
+
+th{
+
+position:sticky;
+
+top:0;
+
+background:#D6F0F7;
+
+color:#1B6CA8;
+
+font-size:13px;
+
+padding:10px;
+
+z-index:20;
+
+}
+
+td{
+
+padding:10px;
+
+border-bottom:1px solid #E6F5FA;
+
+font-size:13px;
+
+vertical-align:top;
+
+}
+
+tr:hover{
+
+background:#F3FCFF;
+
+}
+
+/* ==============================
+判定色
+============================== */
+
+.correct{
+
+background:#C8F0D6;
+
+color:#0D6E35;
+
+font-weight:bold;
+
+}
+
+.wrong{
+
+background:#FDD5D5;
+
+color:#9C1C1C;
+
+font-weight:bold;
+
+}
+
+.good{
+
+background:#FFF5B3;
+
+color:#7A5A00;
+
+font-weight:bold;
+
+}
+
+.bad{
+
+background:#EDD9F8;
+
+color:#5A1F7A;
+
+font-weight:bold;
+
+}
+
+/* ==============================
+右パネル
+============================== */
+
+.right-panel{
+
+flex:1;
+
+display:flex;
+
+flex-direction:column;
+
+background:#F2FAFD;
+
+overflow:hidden;
+
+}
+
+/* ==============================
+ニックネーム検索
+============================== */
+
+.results{
+
+margin-top:8px;
+
+border:1px solid #A8DDE8;
+
+border-radius:10px;
+
+background:white;
+
+padding:10px;
+
+overflow:auto;
+
+flex:1;
+
+}
+
+.right-panel strong{
+
+margin:12px 12px 6px;
+
+color:#2A7DA0;
+
+}
+
+#nicknameInput{
+
+margin:0 12px;
+
+padding:8px;
+
+border-radius:8px;
+
+border:1px solid #A8DDE8;
+
+background:white;
+
+font-size:13px;
+
+}
+
+.right-panel button{
+
+margin:8px 12px;
+
+background:#1A9DC0;
+
+color:white;
+
+border:none;
+
+border-radius:8px;
+
+padding:8px;
+
+cursor:pointer;
+
+font-weight:bold;
+
+}
+
+.right-panel button:hover{
+
+background:#1B6CA8;
+
+}
+
+/* ==============================
+フォーム
+============================== */
+
+.form-embed{
+
+margin:12px;
+
+flex:1;
+
+background:white;
+
+border-radius:12px;
+
+border:2px solid #5BB8D4;
+
+overflow:hidden;
+
+}
+
+.form-embed iframe{
+
+width:100%;
+
+height:100%;
+
+border:none;
+
+}
+
+/* ==============================
+マーキー
+============================== */
+
+.marquee{
+
+position:fixed;
+
+bottom:0;
+
+left:0;
+
+width:100%;
+
+background:#1B6CA8;
+
+color:#B3E8F4;
+
+overflow:hidden;
+
+white-space:nowrap;
+
+font-size:13px;
+
+padding:5px 0;
+
+}
+
+.marquee span{
+
+display:inline-block;
+
+padding-left:100%;
+
+animation:marquee 22s linear infinite;
+
+}
+
+@keyframes marquee{
+
+from{
+
+    transform:translateX(0);
+
+}
+
+to{
+
+    transform:translateX(-100%);
+
+}
+
+}
+
+/* ==============================
+オーバーレイ
+============================== */
+
+.overlay{
+
+position:fixed;
+
+inset:0;
+
+background:rgba(0,0,0,.55);
+
+display:none;
+
+justify-content:center;
+
+align-items:center;
+
+z-index:9999;
+
+}
+
+.overlay-content{
+
+width:90%;
+
+height:88%;
+
+background:white;
+
+border-radius:16px;
+
+overflow:hidden;
+
+position:relative;
+
+box-shadow:0 10px 30px rgba(0,0,0,.25);
+
+}
+
+.overlay-content iframe{
+
+width:100%;
+
+height:100%;
+
+border:none;
+
+}
+
+.close-btn{
+
+position:absolute;
+
+top:12px;
+
+right:12px;
+
+border:none;
+
+background:#E74C3C;
+
+color:white;
+
+padding:8px 14px;
+
+border-radius:8px;
+
+cursor:pointer;
+
+z-index:20;
+
+font-weight:bold;
+
+}
+
+.close-btn:hover{
+
+background:#C0392B;
+
+}
+
+/* ==============================
+スクロールバー
+============================== */
+
+::-webkit-scrollbar{
+
+width:10px;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+background:#8FD3E8;
+
+border-radius:20px;
+
+}
+
+::-webkit-scrollbar-track{
+
+background:#EAF7FB;
+
+}
+
+.badge{
+display:inline-block;
+padding:3px 10px;
+border-radius:12px;
+font-size:12px;
+font-weight:bold;
+white-space:nowrap;
+}
+
+.badge-yes{
+background:#C8F0D6;
+color:#0D6E35;
+}
+
+.badge-no{
+background:#FDD5D5;
+color:#8B1A1A;
+}
+
+.badge-neutral{
+background:#D6EAF7;
+color:#1B4F7A;
+}
+
+.badge-good{
+background:#FFF5B3;
+color:#7A5A00;
+}
+
+.badge-bad{
+background:#EDD9F8;
+color:#5A1F7A;
+}
