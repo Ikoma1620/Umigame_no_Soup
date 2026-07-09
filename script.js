@@ -208,34 +208,122 @@ ${quality}
         "正解者: " + correctNicknames.join(" ／ ");
     }
 
-// 1. 先ほどデプロイしたウェブアプリのURLとAPIキーを定義
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzr-x6-9sGpMb6Hi3PHh2BZTH7MQg2m-7FAgQPWBtkwx1Z4mvk5xBs-RVi-QnSiqa3EdQ/exec"; // ★あなたのURLに書き換え
-const API_KEY = "my_super_secret_token_123";
+
+
+// ----------------------------------------------------
+// ✅ Firestore設定
+// ----------------------------------------------------
+const FIREBASE_PROJECT_ID = "umigame-no-soup-f539b";
+const FIRESTORE_BASE_URL = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents`;
+
+// Firestoreの型付きフィールド({stringValue:"..."}等)をプレーンな値に変換
+function decodeFirestoreFields(fields) {
+  const obj = {};
+  if (!fields) return obj;
+  Object.keys(fields).forEach(key => {
+    const v = fields[key];
+    if (v.stringValue !== undefined) obj[key] = v.stringValue;
+    else if (v.integerValue !== undefined) obj[key] = Number(v.integerValue);
+    else if (v.doubleValue !== undefined) obj[key] = v.doubleValue;
+    else if (v.booleanValue !== undefined) obj[key] = v.booleanValue;
+    else if (v.timestampValue !== undefined) obj[key] = v.timestampValue;
+    else if (v.nullValue !== undefined) obj[key] = null;
+    else obj[key] = null;
+  });
+  return obj;
+}
+
+// コレクション内の全ドキュメントを取得してデコード済み配列で返す
+async function fetchCollection(collectionName) {
+  const res = await fetch(`${FIRESTORE_BASE_URL}/${collectionName}`);
+  if (!res.ok) {
+    throw new Error(`Firestore取得エラー(${collectionName}): ${res.status}`);
+  }
+  const json = await res.json();
+  if (!json.documents) return [];
+  return json.documents.map(doc => decodeFirestoreFields(doc.fields));
+}
+
+// 単一ドキュメント(config/main)を取得
+async function fetchConfigDoc() {
+  const res = await fetch(`${FIRESTORE_BASE_URL}/config/main`);
+  if (!res.ok) {
+    // configがまだ無い場合は空扱いにする
+    console.warn(`config/main の取得に失敗しました: ${res.status}`);
+    return {};
+  }
+  const json = await res.json();
+  return decodeFirestoreFields(json.fields);
+}
 
 async function loadData() {
+  console.log(1);
   try {
-    const response = await fetch(`${GAS_URL}?key=${API_KEY}`);
+    // 1. fetchCollection("texts") を追加して一緒に取得する
+    const [configData, questions, answers, texts] = await Promise.all([
+      fetchConfigDoc(),
+      fetchCollection("questions"),
+      fetchCollection("answers"),
+      fetchCollection("texts") // 追加
+    ]);
+
+    // 元のスプレッドシート行配列形式に合わせて組み立てる
+    const rows = [];
+
+    questions.forEach(q => {
+      rows.push([
+        q.timestamp || "",   // 0
+        "質問する",           // 1
+        q.content || "",     // 2
+        "",                  // 3
+        "",                  // 4
+        q.isCorrect || "",   // 5
+        q.relevance || "",   // 6
+        ""                   // 7
+      ]);
+    });
+
+    answers.forEach(a => {
+      rows.push([
+        a.timestamp || "",   // 0
+        "解答する",           // 1
+        "",                  // 2
+        a.nickname || "",    // 3
+        "",                  // 4
+        "",                  // 5
+        "",                  // 6
+        a.isCorrect || ""    // 7
+      ]);
+    });
+
+    const allDataWithHeader = [
+      ["timestamp", "type", "content", "nickname", "", "isCorrect", "relevance", "isCorrect"],
+      ...rows
+    ];
+
+    // 2. textsの中から表示したい文字（content）を取り出すロジック
+    let textQuestion = configData.mainQuestion || ""; 
     
-    if (!response.ok) {
-      throw new Error(`HTTPエラー status: ${response.status}`);
-    }
-    
-    const result = await response.json();
-    
-    if (result.error) {
-      console.error("GAS側エラー:", result.error);
-      return;
+    if (texts && texts.length > 0) {
+      // 例として、texts配列の「最後のレコード（最新）」の content を取得する場合
+      const latestText = texts[texts.length - 1];
+      if (latestText && latestText.content) {
+        textQuestion = latestText.content;
+      }
     }
 
-    // 成功したらテーブルを描画する関数を実行
+    const result = {
+      data: allDataWithHeader,
+      secret: configData.secretKey || "",
+      question: textQuestion, // 3. 抽出した textQuestion をセット
+      forcedDisplay: configData.forcedDisplay || ""
+    };
+
     renderTable(result);
 
   } catch (error) {
     console.error("データの読み込みに失敗しました:", error);
   }
 }
-
-    
-
-    loadData();
-    setInterval(loadData, 10000);
+loadData();
+setInterval(loadData, 10000);
