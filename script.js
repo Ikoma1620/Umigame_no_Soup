@@ -135,7 +135,8 @@ correctness==="はい"
 ${correctness}
 </span>`;
         if (correctness === "はい") tdC.classList.add("correct");
-        else if (correctness === "いいえ") tdC.classList.add("wrong");
+        else if (correctness === "いいえ") tdC.classList.add("wrong");　//neither
+        else if (correctness === "どちらでもない") tdC.classList.add("neither")
         tr.appendChild(tdC);
 
         const tdF = document.createElement("td");
@@ -327,3 +328,75 @@ async function loadData() {
 }
 loadData();
 setInterval(loadData, 10000);
+
+const stateMap = {
+  'はい':'state-correct',
+  'どちらでもない':'state-neutral',
+  'いいえ':'state-wrong',
+  'いい質問':'state-good',
+  '関係ない':'state-bad'
+};
+
+function initCustomSelect(containerId, onChange){
+  const container = document.getElementById(containerId);
+  const trigger = container.querySelector('.custom-select-trigger');
+  const options = container.querySelectorAll('.custom-select-options li');
+  const hiddenSelect = container.querySelector('select');
+
+  function setValue(value, label){
+    // トリガーのテキストを更新
+    trigger.textContent = label;
+    trigger.dataset.value = value;
+
+    // 既存のstate-*クラスを削除して即座に切り替え
+    trigger.classList.forEach(c=>{
+      if(c.startsWith('state-')) trigger.classList.remove(c);
+    });
+    const stateClass = stateMap[value];
+    if(stateClass) trigger.classList.add(stateClass);
+
+    // 選択中マークの更新
+    options.forEach(li=> li.classList.toggle('selected', li.dataset.value === value));
+
+    // 隠しselectにも反映(既存ロジックとの互換用)
+    hiddenSelect.value = value;
+
+    if(onChange) onChange(value);
+  }
+
+  // トリガークリックで開閉
+  trigger.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    // 他の開いてるドロップダウンを閉じる
+    document.querySelectorAll('.custom-select.open').forEach(el=>{
+      if(el !== container) el.classList.remove('open');
+    });
+    container.classList.toggle('open');
+  });
+
+  // 項目クリックで選択
+  options.forEach(li=>{
+    li.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      setValue(li.dataset.value, li.textContent);
+      container.classList.remove('open');
+    });
+  });
+
+  // 初期状態を反映
+  setValue(hiddenSelect.value, trigger.textContent);
+}
+
+// 外側クリックで全部閉じる
+document.addEventListener('click', ()=>{
+  document.querySelectorAll('.custom-select.open').forEach(el=> el.classList.remove('open'));
+});
+
+// 初期化(必要に応じてフィルタ処理をonChangeに渡す)
+initCustomSelect('correctnessSelect', (value)=>{
+  // 例: ここでフィルタ処理を呼ぶ
+  // applyFilters();
+});
+initCustomSelect('qualitySelect', (value)=>{
+  // applyFilters();
+});

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q&A一覧</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-deep:       #050c14;
+        --bg-panel:      #0c1a26;
+        --bg-panel-2:    #0f2130;
+        --line-soft:     rgba(126, 214, 200, 0.16);
+        --teal:          #6fd8c7;
+        --teal-bright:   #9be9dc;
+        --gold:          #d9a75c;
+        --gold-soft:     rgba(217, 167, 92, 0.55);
+        --text-main:     #eaf3f2;
+        --text-sub:      #9fb4bd;
+        --shadow-glow:   0 0 22px rgba(111, 216, 199, 0.25);
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Noto Sans JP", "Yu Gothic", sans-serif;
+        background:
+          radial-gradient(ellipse 60% 40% at 78% 0%, rgba(111, 216, 199, 0.10), transparent 60%),
+          linear-gradient(180deg, #071019 0%, #050c14 40%, #030810 100%);
+        color: var(--text-main);
+        line-height: 1.8;
+        padding: 48px 18px 80px;
+        min-height: 100vh;
+      }
+
+      /* ambient light rays, echoing sunbeams through deep water */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(115deg, transparent 42%, rgba(255,255,255,0.025) 44%, transparent 46%),
+          linear-gradient(115deg, transparent 50%, rgba(255,255,255,0.02) 52%, transparent 54%),
+          linear-gradient(115deg, transparent 60%, rgba(255,255,255,0.018) 62%, transparent 64%);
+        z-index: 0;
+      }
+
+      .page {
+        position: relative;
+        z-index: 1;
+        max-width: 760px;
+        margin: 0 auto;
+      }
+
+      header.top {
+        text-align: center;
+        margin-bottom: 44px;
+      }
+
+      h1 {
+        font-family: "Noto Serif JP", serif;
+        font-weight: 700;
+        font-size: 2em;
+        letter-spacing: 0.12em;
+        color: var(--text-main);
+        margin: 0 0 14px;
+        text-shadow: 0 0 26px rgba(111, 216, 199, 0.35);
+      }
+
+      /* torii-inspired divider under the title */
+      .torii-rule {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        color: var(--gold);
+      }
+      .torii-rule::before,
+      .torii-rule::after {
+        content: "";
+        height: 2px;
+        width: 64px;
+        background: linear-gradient(90deg, transparent, var(--gold-soft));
+      }
+      .torii-rule::after { background: linear-gradient(270deg, transparent, var(--gold-soft)); }
+      .torii-rule span {
+        font-size: 0.8em;
+        letter-spacing: 0.3em;
+        color: var(--text-sub);
+      }
+
+      section {
+        margin-top: 40px;
+      }
+
+      h2 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: "Noto Serif JP", serif;
+        font-weight: 500;
+        font-size: 1.15em;
+        color: var(--text-main);
+        background: linear-gradient(90deg, rgba(217,167,92,0.14), transparent 75%);
+        border-left: 3px solid var(--gold);
+        padding: 10px 16px;
+        margin: 0 0 16px;
+        letter-spacing: 0.06em;
+      }
+
+      h2::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--gold);
+        box-shadow: 0 0 10px var(--gold-soft);
+        flex: none;
+      }
+
+      .qa-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .question {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        background: var(--bg-panel);
+        border: 1px solid var(--line-soft);
+        border-left: 3px solid var(--teal);
+        border-radius: 8px;
+        padding: 14px 18px;
+        cursor: pointer;
+        font-size: 1em;
+        font-weight: 500;
+        color: var(--text-main);
+        transition: background 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      }
+
+      .question:hover,
+      .question:focus-visible {
+        background: var(--bg-panel-2);
+        box-shadow: var(--shadow-glow);
+        border-left-color: var(--teal-bright);
+      }
+
+      .question:focus-visible {
+        outline: 2px solid var(--teal-bright);
+        outline-offset: 2px;
+      }
+
+      .question .qtext {
+        flex: 1;
+      }
+
+      .chevron {
+        flex: none;
+        width: 18px;
+        height: 18px;
+        color: var(--teal);
+        transition: transform 0.3s ease;
+      }
+
+      .question[aria-expanded="true"] .chevron {
+        transform: rotate(180deg);
+        color: var(--teal-bright);
+      }
+
+      .answer-wrap {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 0.3s ease;
+      }
+      .answer-wrap.open {
+        grid-template-rows: 1fr;
+      }
+      .answer-inner {
+        overflow: hidden;
+      }
+
+      .answer {
+        padding: 16px 20px;
+        margin: 4px 0 2px;
+        background: rgba(15, 33, 48, 0.7);
+        border-left: 3px solid var(--gold);
+        border-radius: 0 8px 8px 0;
+        color: var(--text-sub);
+        font-size: 0.96em;
+      }
+
+      .answer :is(p) { margin: 0 0 0.8em; }
+      .answer :last-child { margin-bottom: 0; }
+
+      #content {
+        color: var(--text-sub);
+        text-align: center;
+      }
+
+      @media (max-width: 480px) {
+        h1 { font-size: 1.5em; }
+        .question { padding: 12px 14px; font-size: 0.96em; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * { transition: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="top">
+        <h1>Q&amp;A一覧</h1>
+        <div class="torii-rule"><span>質問をタップして回答を表示</span></div>
+      </header>
+      <div id="content">読み込み中...</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="question.js"></script>
+  </body>
+</html>

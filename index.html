@@ -1,24 +1,114 @@
 <!DOCTYPE html>
 
 <html lang="ja">
-
-<html>
 <head>
-  <meta charset="UTF-8">
-  <title>フォーム回答一覧</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>フォーム回答一覧</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="intro.css">
 </head>
 <body>
-  <div class="main-container">
-    <!-- 左側 -->
-    <div class="left-panel">
-      <header>
-        <h1>ウミガメさんとスープ</h1>
-        <button class="qa-button" onclick="openQaOverlay()">Q&Aを開く</button>
-      </header>
 
-      <div class="question-display">
-    <span style="
+<!-- ==============================
+     オープニング演出
+============================== -->
+<div id="introOverlay" class="intro-overlay" role="dialog" aria-modal="true" aria-label="オープニング演出">
+
+    <div class="intro-rays"></div>
+    <div class="intro-bubbles" id="introBubbles"></div>
+    <span class="intro-spirit"></span>
+    <span class="intro-spirit"></span>
+    <span class="intro-spirit"></span>
+
+    <!-- 竜宮城のシルエット -->
+    <svg class="intro-palace" viewBox="0 0 600 260" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+        <path class="palace-rock" d="M0,260 L0,190 Q70,140 150,165 L210,140 Q280,110 330,150 L420,125 Q480,105 540,140 L600,165 L600,260 Z"/>
+
+        <!-- 鳥居 -->
+        <g class="torii-group">
+            <rect class="torii-part" x="70" y="150" width="10" height="70"/>
+            <rect class="torii-part" x="150" y="150" width="10" height="70"/>
+            <rect class="torii-part" x="55" y="132" width="140" height="10" rx="2"/>
+            <rect class="torii-part" x="65" y="156" width="120" height="6" rx="1"/>
+        </g>
+
+        <!-- 社殿（三層） -->
+        <g class="palace-body-group">
+            <rect class="palace-body" x="240" y="175" width="150" height="45"/>
+            <polygon class="palace-roof" points="220,175 410,175 375,150 255,150"/>
+            <rect class="palace-body" x="265" y="135" width="100" height="35"/>
+            <polygon class="palace-roof" points="250,135 380,135 355,112 275,112"/>
+            <rect class="palace-body" x="288" y="95" width="55" height="28"/>
+            <polygon class="palace-roof" points="278,95 353,95 335,75 296,75"/>
+            <line x1="315" y1="75" x2="315" y2="50" stroke="#5DE0D6" stroke-width="1.5"/>
+            <circle cx="315" cy="47" r="3" fill="#E8A54A"/>
+
+            <rect class="palace-window" x="255" y="188" width="10" height="10"/>
+            <rect class="palace-window" x="278" y="188" width="10" height="10"/>
+            <rect class="palace-window" x="345" y="188" width="10" height="10"/>
+            <rect class="palace-window" x="368" y="188" width="10" height="10"/>
+            <rect class="palace-window" x="283" y="148" width="9" height="9"/>
+            <rect class="palace-window" x="340" y="148" width="9" height="9"/>
+            <rect class="palace-window" x="305" y="105" width="8" height="8"/>
+        </g>
+
+        <!-- 小さな灯篭 -->
+        <rect class="palace-window" x="440" y="200" width="8" height="8"/>
+        <rect class="palace-window" x="470" y="210" width="7" height="7"/>
+        <rect class="palace-window" x="500" y="195" width="8" height="8"/>
+    </svg>
+
+    <!-- 案内役のウミガメ -->
+    <div class="intro-turtle-wrap" id="introTurtleWrap">
+        <svg class="intro-turtle" viewBox="0 0 220 150" aria-hidden="true">
+            <ellipse class="turtle-shell" cx="120" cy="80" rx="58" ry="40"/>
+            <path class="turtle-shell-lines" d="M66,80 L178,80 M92,48 L92,112 M120,44 L120,116 M148,48 L148,112"/>
+            <ellipse class="turtle-head" cx="182" cy="70" rx="17" ry="13"/>
+            <circle class="turtle-eye" cx="190" cy="66" r="2"/>
+
+            <g class="flipper flipper-fl" style="transform-origin:70px 48px;">
+                <ellipse cx="52" cy="43" rx="27" ry="11"/>
+            </g>
+            <g class="flipper flipper-bl" style="transform-origin:78px 116px;">
+                <ellipse cx="52" cy="121" rx="25" ry="10"/>
+            </g>
+            <g class="flipper flipper-fr" style="transform-origin:150px 48px;">
+                <ellipse cx="166" cy="40" rx="20" ry="9"/>
+            </g>
+            <g class="flipper flipper-br" style="transform-origin:150px 114px;">
+                <ellipse cx="160" cy="120" rx="18" ry="8"/>
+            </g>
+        </svg>
+    </div>
+
+    <!-- 案内テキスト -->
+    <div class="intro-text">
+        <p class="intro-eyebrow intro-fade">案内役　ウミガメ</p>
+        <h1 class="intro-title intro-fade">ウミガメさんとスープ</h1>
+
+        <p class="intro-line intro-fade">VRの世界で、あなたはウミガメに出会った。</p>
+        <p class="intro-line intro-quote intro-fade">「竜宮城へ、ご案内しましょう」</p>
+        <p class="intro-line intro-fade">彼はそう告げると、深海の底へと進んでいく。</p>
+        <p class="intro-line intro-fade">その先に待つのは天国か、それとも――。</p>
+
+        <p class="intro-sub intro-fade">全員参加・協力型のウミガメのスープ<br>全問自作、初心者も誰でも大歓迎！</p>
+
+        <button id="introStartButton" class="intro-start-btn intro-fade" type="button">深海へ進む</button>
+    </div>
+
+    <button id="introSkipButton" class="intro-skip-btn" type="button">スキップ</button>
+</div>
+
+<div class="main-container">
+<!-- 左側 -->
+<div class="left-panel">
+<header>
+<h1>ウミガメさんとスープ</h1>
+<button class="qa-button" onclick="openQaOverlay()">Q&Aを開く</button>
+</header>
+
+<div class="question-display">
+<span style="
         display:inline-block;
         background:#1A9DC0;
         color:white;
@@ -29,42 +119,57 @@
         font-weight:bold;
     ">
         問題
-    </span>
+</span>
 
-    <span id="mainQuestion">
+<span id="mainQuestion">
         読み込み中...
-    </span>
+</span>
 </div>
 
-      <div class="filter-container">
-        <strong>絞り込み</strong><br>
-        <label>正誤:
-          <select id="filterCorrectness">
-            <option value="all">すべて</option>
-            <option value="はい">はい</option>
-            <option value="どちらでもない">どちらでもない</option>
-            <option value="いいえ">いいえ</option>
-          </select>
-        </label>
-        <label>関連度:
-          <select id="filterQuality">
-            <option value="all">すべて</option>
-            <option value="いい質問">いい質問</option>
-            <option value="関係ない">関係ない</option>
-          </select>
-        </label>
-        <button id="filterButton" onclick="applyFilter()">
+<div class="filter-container">
+<strong>絞り込み</strong><br>
+<h4>正誤</h4>
+    <div class="custom-select" id="correctnessSelect">
+    <div class="custom-select-trigger" data-value="all">すべて</div>
+    <ul class="custom-select-options">
+        <li data-value="all" class="opt-all">すべて</li>
+        <li data-value="はい" class="opt-correct">はい</li>
+        <li data-value="どちらでもない" class="opt-neutral">どちらでもない</li>
+        <li data-value="いいえ" class="opt-wrong">いいえ</li>
+    </ul>
+    <select id="filterCorrectness" hidden>
+        <option value="all">すべて</option>
+        <option value="はい">はい</option>
+        <option value="どちらでもない">どちらでもない</option>
+        <option value="いいえ">いいえ</option>
+    </select>
+    </div>
+<h4>関連度</h4>
+  <div class="custom-select" id="qualitySelect">
+  <div class="custom-select-trigger" data-value="all">すべて</div>
+  <ul class="custom-select-options">
+    <li data-value="all" class="opt-all">すべて</li>
+    <li data-value="いい質問" class="opt-good">いい質問</li>
+    <li data-value="関係ない" class="opt-bad">関係ない</li>
+  </ul>
+  <select id="filterQuality" hidden>
+    <option value="all">すべて</option>
+    <option value="いい質問">いい質問</option>
+    <option value="関係ない">関係ない</option>
+  </select>
+</div>
+<button id="filterButton" onclick="applyFilter()">
     適用
 </button>
-      </div>
+</div>
 
 <div id="tableWrapper">
-    <table id="output"></table>
+<table id="output"></table>
 </div>
-    </div>
+</div>
 
-    <!-- 右側 -->
-    <div class="right-panel">
+<!-- 右側 -->
+<div class="right-panel">
 <div style="margin:12px;">
 
 <strong>ニックネームで確認</strong>
@@ -85,27 +190,27 @@ id="nicknameResults">
 
 </div>
 
-      <!-- 👇 ここにGoogleフォームを埋め込み -->
-      <div class="form-embed">
+<!-- 👇 ここにGoogleフォームを埋め込み -->
+<div class="form-embed">
 
 <iframe
 src="https://forms.gle/PsjU6uP2qnVAz5738">
 </iframe>
 
 </div>
-  </div>
+</div>
 
-  <div class="marquee">
-    <span id="marqueeText"></span>
-  </div>
+<div class="marquee">
+<span id="marqueeText"></span>
+</div>
 
-   <!--
+
 <div class="overlay" id="qaOverlay">
   <div class="overlay-content">
     <button class="close-btn" onclick="closeQaOverlay()">× 閉じる</button>
     <iframe 
       id="qaIframe"
-      src="https://script.google.com/macros/s/AKfycbwAdrez_g1WZz88Mwr7grJsxTf4lQYGBgrXzlws3FGyeFHFWyfSfvXp2GhPhnG6fslHMg/exec"
+      src="./question.html"
       width="100%" 
       height="100%" 
       frameborder="0">
@@ -125,8 +230,9 @@ src="https://forms.gle/PsjU6uP2qnVAz5738">
     </iframe>
   </div>
 </div>
--->
+
 
 <script src="script.js"></script>
+<script src="intro.js"></script>
 </body>
 </html>
