@@ -228,10 +228,10 @@ stroke:#5DE0D6;
 stroke-width:1.1;
 }
 
-.flipper-fl{ animation:flapFront 2.6s ease-in-out infinite; }
-.flipper-fr{ animation:flapFront 2.6s ease-in-out infinite .15s; }
-.flipper-bl{ animation:flapBack 2.6s ease-in-out infinite .3s; }
-.flipper-br{ animation:flapBack 2.6s ease-in-out infinite .45s; }
+.flipper-fl{ transform-origin:70px 48px; animation:flapFront 2.6s ease-in-out infinite; }
+.flipper-fr{ transform-origin:150px 48px; animation:flapFront 2.6s ease-in-out infinite .15s; }
+.flipper-bl{ transform-origin:78px 116px; animation:flapBack 2.6s ease-in-out infinite .3s; }
+.flipper-br{ transform-origin:150px 114px; animation:flapBack 2.6s ease-in-out infinite .45s; }
 
 @keyframes flapFront{
 0%,100%{transform:rotate(-10deg);}

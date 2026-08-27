@@ -3,7 +3,9 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>フォーム回答一覧</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23030709'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="intro.css">
 </head>
@@ -66,16 +68,16 @@
             <ellipse class="turtle-head" cx="182" cy="70" rx="17" ry="13"/>
             <circle class="turtle-eye" cx="190" cy="66" r="2"/>
 
-            <g class="flipper flipper-fl" style="transform-origin:70px 48px;">
+            <g class="flipper flipper-fl">
                 <ellipse cx="52" cy="43" rx="27" ry="11"/>
             </g>
-            <g class="flipper flipper-bl" style="transform-origin:78px 116px;">
+            <g class="flipper flipper-bl">
                 <ellipse cx="52" cy="121" rx="25" ry="10"/>
             </g>
-            <g class="flipper flipper-fr" style="transform-origin:150px 48px;">
+            <g class="flipper flipper-fr">
                 <ellipse cx="166" cy="40" rx="20" ry="9"/>
             </g>
-            <g class="flipper flipper-br" style="transform-origin:150px 114px;">
+            <g class="flipper flipper-br">
                 <ellipse cx="160" cy="120" rx="18" ry="8"/>
             </g>
         </svg>
@@ -104,20 +106,11 @@
 <div class="left-panel">
 <header>
 <h1>ウミガメさんとスープ</h1>
-<button class="qa-button" onclick="openQaOverlay()">Q&Aを開く</button>
+<button class="qa-button" id="qaButton" type="button">Q&Aを開く</button>
 </header>
 
 <div class="question-display">
-<span style="
-        display:inline-block;
-        background:#1A9DC0;
-        color:white;
-        padding:3px 8px;
-        border-radius:7px;
-        font-size:12px;
-        margin-right:10px;
-        font-weight:bold;
-    ">
+<span class="question-label">
         問題
 </span>
 
@@ -158,7 +151,7 @@
     <option value="関係ない">関係ない</option>
   </select>
 </div>
-<button id="filterButton" onclick="applyFilter()">
+<button id="filterButton" type="button">
     適用
 </button>
 </div>
@@ -170,7 +163,7 @@
 
 <!-- 右側 -->
 <div class="right-panel">
-<div style="margin:12px;">
+<div class="nickname-search">
 
 <strong>ニックネームで確認</strong>
 
@@ -179,7 +172,7 @@ id="nicknameInput"
 type="text"
 placeholder="ニックネームを入力">
 
-<button onclick="searchByNickname()">
+<button id="nicknameSearchButton" type="button">
 確認する
 </button>
 
@@ -207,7 +200,7 @@ src="https://forms.gle/PsjU6uP2qnVAz5738">
 
 <div class="overlay" id="qaOverlay">
   <div class="overlay-content">
-    <button class="close-btn" onclick="closeQaOverlay()">× 閉じる</button>
+    <button class="close-btn" id="closeQaButton" type="button">× 閉じる</button>
     <iframe 
       id="qaIframe"
       src="./question.html"
@@ -220,7 +213,7 @@ src="https://forms.gle/PsjU6uP2qnVAz5738">
 
 <div class="overlay" id="autoOverlay">
   <div class="overlay-content">
-    <button class="close-btn" onclick="closeAutoOverlay()">× 閉じる</button>
+    <button class="close-btn" id="closeAutoButton" type="button">× 閉じる</button>
     <iframe 
       id="targetIframe" 
       src=""
