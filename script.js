@@ -1,8 +1,13 @@
-const FIREBASE_PROJECT_ID = "umigame-no-soup-f539b";
-const FIRESTORE_BASE_URL = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents`;
-const POLLING_INTERVAL_MS = 10_000;
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const state = { data: [], secretKey: "", lastRenderKey: "", lastProcessedUrl: "", isLoading: false };
+const firebaseConfig = {
+  projectId: "umigame-no-soup-f539b"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const state = { data: [], secretKey: "", lastRenderKey: "", lastProcessedUrl: "" };
 const $ = (selector) => document.querySelector(selector);
 
 function setOverlay(id, isOpen) {
@@ -128,63 +133,35 @@ function updateAutoOverlay(forcedDisplay) {
   openAutoOverlay();
 }
 
-function decodeFirestoreFields(fields = {}) {
-  return Object.fromEntries(Object.entries(fields).map(([key, value]) => {
-    if (value.stringValue !== undefined) return [key, value.stringValue];
-    if (value.integerValue !== undefined) return [key, Number(value.integerValue)];
-    if (value.doubleValue !== undefined) return [key, value.doubleValue];
-    if (value.booleanValue !== undefined) return [key, value.booleanValue];
-    if (value.timestampValue !== undefined) return [key, value.timestampValue];
-    return [key, null];
-  }));
-}
+// --- コスト最小化: 集約ドキュメント (game/current) のみをリアルタイム監視 ---
+onSnapshot(doc(db, "game", "current"), (docSnap) => {
+  if (!docSnap.exists()) return;
+  const docData = docSnap.data();
 
-async function fetchJson(url, fallback) {
-  const response = await fetch(url);
-  if (!response.ok) {
-    if (fallback !== undefined) return fallback;
-    throw new Error(`Firestore取得エラー: ${response.status}`);
-  }
-  return response.json();
-}
+  const questions = docData.questions || [];
+  const answers = docData.answers || [];
 
-async function fetchCollection(collectionName) {
-  const json = await fetchJson(`${FIRESTORE_BASE_URL}/${collectionName}`);
-  return (json.documents || []).map(({ fields }) => decodeFirestoreFields(fields));
-}
+  // 元のテーブル描画ロジックに合わせたデータ形式(rows)に復元
+  const rows = [
+    ...questions.map((q) => [
+      q.timestamp || "", "質問する", q.content || "", "", "",
+      q.isCorrect || "", q.relevance || "", ""
+    ]),
+    ...answers.map((a) => [
+      a.timestamp || "", "解答する", "", a.nickname || "",
+      "", "", "", a.isCorrect || ""
+    ])
+  ];
 
-async function fetchConfigDoc() {
-  // 設定が未作成でも404にならないよう、configコレクションとして取得する。
-  const json = await fetchJson(`${FIRESTORE_BASE_URL}/config`, { documents: [] });
-  const configDoc = (json.documents || []).find((document) => document.name.endsWith("/config/main"));
-  return decodeFirestoreFields(configDoc?.fields);
-}
+  renderTable({
+    data: [["timestamp", "type", "content", "nickname", "", "isCorrect", "relevance", "isCorrect"], ...rows],
+    secret: docData.secretKey || "",
+    question: docData.mainQuestion || "",
+    forcedDisplay: docData.forcedDisplay || ""
+  });
+}, (error) => console.error("Firestoreリアルタイム取得エラー:", error));
 
-async function loadData() {
-  if (state.isLoading) return;
-  state.isLoading = true;
-  try {
-    const [config, problemTexts, questions, answers] = await Promise.all([
-      fetchConfigDoc(), fetchCollection("問題文"), fetchCollection("質問"), fetchCollection("解答")
-    ]);
-    const rows = [
-      ...questions.map((question) => [question.timestamp || "", "質問する", question["内容"] || question.content || "", "", "", question["正誤"] || question.isCorrect || "", question["関連度"] || question.relevance || "", ""]),
-      ...answers.map((answer) => [answer.timestamp || "", "解答する", "", answer["ニックネーム"] || answer.nickname || "", "", "", "", answer["正誤"] || answer.isCorrect || ""])
-    ];
-    const latestProblem = problemTexts.at(-1) || {};
-    renderTable({
-      data: [["timestamp", "type", "content", "nickname", "", "isCorrect", "relevance", "isCorrect"], ...rows],
-      secret: config.secretKey || "",
-      question: latestProblem["問題文"] || latestProblem.content || config.mainQuestion || "",
-      forcedDisplay: config.forcedDisplay || ""
-    });
-  } catch (error) {
-    console.error("データの読み込みに失敗しました:", error);
-  } finally {
-    state.isLoading = false;
-  }
-}
-
+// UI設定
 const stateMap = { はい: "state-correct", どちらでもない: "state-neutral", いいえ: "state-wrong", "いい質問": "state-good", 関係ない: "state-bad" };
 
 function initCustomSelect(containerId) {
@@ -230,5 +207,3 @@ document.addEventListener("click", () => {
 
 initCustomSelect("correctnessSelect");
 initCustomSelect("qualitySelect");
-loadData();
-window.setInterval(loadData, POLLING_INTERVAL_MS);
