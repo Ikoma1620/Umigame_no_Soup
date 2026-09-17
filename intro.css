@@ -16,11 +16,34 @@ justify-content:flex-end;
 overflow:hidden;
 
 background:
-    radial-gradient(ellipse 900px 700px at 75% -5%, rgba(120,200,210,.22), transparent 60%),
-    radial-gradient(ellipse 1100px 850px at 10% 105%, rgba(30,90,90,.22), transparent 65%),
-    linear-gradient(180deg,#01050a 0%,#04121a 45%,#071c26 100%);
+    radial-gradient(ellipse 720px 520px at 77% 9%, rgba(108,218,213,.16), transparent 62%),
+    radial-gradient(ellipse 900px 680px at 8% 93%, rgba(23,112,122,.22), transparent 67%),
+    radial-gradient(ellipse 420px 260px at 52% 54%, rgba(17,76,91,.16), transparent 72%),
+    linear-gradient(180deg,#010409 0%,#03111a 43%,#061b26 100%);
 
 transition:opacity .9s ease;
+}
+
+#introOverlay::before{
+content:"";
+position:absolute;
+inset:0;
+z-index:0;
+pointer-events:none;
+background:
+    radial-gradient(ellipse at center, transparent 28%, rgba(0,4,9,.12) 64%, rgba(0,2,6,.72) 100%),
+    linear-gradient(90deg, rgba(0,0,0,.16), transparent 25%, transparent 75%, rgba(0,0,0,.22));
+}
+
+#introOverlay::after{
+content:"";
+position:absolute;
+inset:0;
+z-index:8;
+pointer-events:none;
+opacity:.18;
+background:repeating-linear-gradient(0deg, transparent 0 3px, rgba(180,240,238,.025) 4px, transparent 5px);
+mix-blend-mode:screen;
 }
 
 #introOverlay.is-leaving{
@@ -41,15 +64,55 @@ position:absolute;
 inset:0;
 z-index:1;
 background:
-    linear-gradient(100deg, transparent 40%, rgba(180,225,230,.10) 46%, transparent 52%),
-    linear-gradient(115deg, transparent 55%, rgba(180,225,230,.07) 60%, transparent 68%);
-animation:rayShimmer 9s ease-in-out infinite;
+    linear-gradient(102deg, transparent 30%, rgba(188,242,235,.08) 42%, rgba(188,242,235,.14) 47%, transparent 58%),
+    linear-gradient(112deg, transparent 47%, rgba(180,225,230,.06) 54%, transparent 64%),
+    linear-gradient(72deg, transparent 63%, rgba(145,223,218,.045) 68%, transparent 76%);
+animation:rayShimmer 12s ease-in-out infinite;
 mix-blend-mode:screen;
+filter:blur(1px);
 }
 
 @keyframes rayShimmer{
 0%,100%{opacity:.55; transform:translateX(0);}
-50%{opacity:1; transform:translateX(-2%);}
+50%{opacity:1; transform:translateX(-3%);}
+}
+
+/* 水面のゆらめきと、遠くの海中の霞 */
+.intro-caustics{
+position:absolute;
+inset:-12%;
+z-index:1;
+pointer-events:none;
+opacity:.32;
+background:
+    repeating-radial-gradient(ellipse at 20% 10%, transparent 0 22px, rgba(112,226,218,.035) 24px 26px, transparent 29px 58px),
+    repeating-radial-gradient(ellipse at 80% 4%, transparent 0 28px, rgba(255,255,255,.025) 31px 33px, transparent 37px 76px);
+filter:blur(8px);
+transform:rotate(-8deg) scale(1.08);
+animation:causticDrift 18s ease-in-out infinite alternate;
+mix-blend-mode:screen;
+}
+
+@keyframes causticDrift{
+from{transform:rotate(-8deg) scale(1.08) translate3d(-2%, -1%, 0); opacity:.22;}
+to{transform:rotate(-5deg) scale(1.12) translate3d(2%, 1%, 0); opacity:.38;}
+}
+
+.intro-depth-haze{
+position:absolute;
+inset:0;
+z-index:2;
+pointer-events:none;
+background:
+    radial-gradient(ellipse 60% 22% at 52% 77%, rgba(93,224,214,.08), transparent 72%),
+    linear-gradient(180deg, transparent 45%, rgba(83,188,190,.035) 72%, rgba(3,15,22,.2) 100%);
+filter:blur(12px);
+animation:hazeBreath 8s ease-in-out infinite;
+}
+
+@keyframes hazeBreath{
+0%,100%{opacity:.55; transform:scale(1);}
+50%{opacity:.9; transform:scale(1.04);}
 }
 
 /* ------------------------------
@@ -117,8 +180,8 @@ z-index:3;
 width:min(58vw, 620px);
 height:auto;
 opacity:0;
-filter:drop-shadow(0 0 22px rgba(93,224,214,.12));
-animation:palaceRise 2.4s ease-out .3s forwards;
+filter:drop-shadow(0 0 22px rgba(93,224,214,.12)) drop-shadow(0 -8px 28px rgba(31,151,156,.12));
+animation:palaceRise 1.8s ease-out .15s forwards;
 }
 
 @keyframes palaceRise{
@@ -143,6 +206,11 @@ stroke-width:1;
 fill:#3a1e18;
 stroke:rgba(93,224,214,.2);
 stroke-width:.6;
+}
+
+/* 鳥居はSVG内で一体として移動させ、笠木と柱の位置関係を保つ */
+.torii-group{
+transform-box:fill-box;
 }
 
 .palace-window{
@@ -175,7 +243,23 @@ width:min(30vw, 260px);
 
 opacity:0;
 transform:translateX(140px) translateY(-30px) scale(.85) rotate(-6deg);
-animation:turtleEnter 2.6s cubic-bezier(.2,.8,.2,1) .4s forwards;
+animation:turtleEnter 2s cubic-bezier(.2,.8,.2,1) .2s forwards;
+}
+
+.intro-turtle-wrap::before{
+content:"";
+position:absolute;
+inset:12% -8%;
+z-index:-1;
+border-radius:50%;
+background:radial-gradient(ellipse, rgba(93,224,214,.18), rgba(93,224,214,.05) 42%, transparent 72%);
+filter:blur(14px);
+animation:turtleAura 4.5s ease-in-out infinite;
+}
+
+@keyframes turtleAura{
+0%,100%{opacity:.55; transform:scale(.94);}
+50%{opacity:1; transform:scale(1.08);}
 }
 
 @keyframes turtleEnter{
@@ -262,10 +346,20 @@ backdrop-filter:blur(6px);
 box-shadow:0 10px 40px rgba(0,0,0,.5), 0 0 30px rgba(93,224,214,.08) inset;
 }
 
+.intro-text::before{
+content:"";
+display:block;
+width:72px;
+height:2px;
+margin:0 auto 18px;
+background:linear-gradient(90deg, transparent, #E8A54A, #5DE0D6, transparent);
+box-shadow:0 0 12px rgba(93,224,214,.45);
+}
+
 .intro-fade{
 opacity:0;
 transform:translateY(14px);
-animation:introFadeUp .9s ease forwards;
+animation:introFadeUp .7s ease forwards;
 }
 
 @keyframes introFadeUp{
@@ -278,7 +372,7 @@ letter-spacing:.25em;
 color:#E8A54A;
 text-shadow:0 0 10px rgba(232,165,74,.5);
 margin-bottom:8px;
-animation-delay:1.4s;
+animation-delay:.7s;
 }
 
 .intro-title{
@@ -289,25 +383,25 @@ color:#EAF9FA;
 letter-spacing:.04em;
 text-shadow:0 0 12px rgba(93,224,214,.5), 0 0 30px rgba(93,224,214,.25);
 margin-bottom:16px;
-animation-delay:1.7s;
+animation-delay:.9s;
 }
 
 .intro-line{
 font-size:14.5px;
 line-height:1.9;
 color:#CDEFF2;
-animation-delay:2.1s;
+animation-delay:1.2s;
 }
 
-.intro-line + .intro-line{ animation-delay:2.5s; }
+.intro-line + .intro-line{ animation-delay:1.5s; }
 .intro-line.intro-quote{
 color:#F5C77E;
 font-weight:600;
 letter-spacing:.02em;
-animation-delay:2.9s;
+animation-delay:1.8s;
 }
-.intro-line.intro-quote + .intro-line{ animation-delay:3.3s; }
-.intro-line.intro-quote + .intro-line + .intro-line{ animation-delay:3.7s; }
+.intro-line.intro-quote + .intro-line{ animation-delay:2.1s; }
+.intro-line.intro-quote + .intro-line + .intro-line{ animation-delay:2.4s; }
 
 .intro-sub{
 margin-top:16px;
@@ -315,7 +409,7 @@ padding-top:14px;
 border-top:1px dashed rgba(93,224,214,.3);
 font-size:13px;
 color:#8FE3DC;
-animation-delay:4.1s;
+animation-delay:2.7s;
 }
 
 .intro-start-btn{
@@ -335,13 +429,18 @@ animation-duration:.9s, 2.4s;
 animation-timing-function:ease, ease-in-out;
 animation-iteration-count:1, infinite;
 animation-fill-mode:forwards, none;
-animation-delay:4.5s, 5.4s;
+animation-delay:3s, 3.9s;
 transition:filter .2s;
+min-height:44px;
 }
 
 .intro-start-btn:hover{
 filter:brightness(1.1);
 box-shadow:0 0 20px rgba(93,224,214,.5);
+}
+
+.intro-start-btn:active{
+transform:translateY(1px) scale(.98);
 }
 
 @keyframes btnPulse{
@@ -355,24 +454,33 @@ box-shadow:0 0 20px rgba(93,224,214,.5);
 
 .intro-skip-btn{
 position:absolute;
-top:18px;
-right:18px;
+top:max(18px, env(safe-area-inset-top));
+right:max(18px, env(safe-area-inset-right));
 z-index:6;
 
 border:1px solid rgba(93,224,214,.3);
 background:rgba(4,14,20,.5);
 color:#8FE3DC;
-font-size:12px;
-padding:6px 14px;
+font-size:13px;
+padding:9px 16px;
+min-height:44px;
+min-width:104px;
 border-radius:20px;
 cursor:pointer;
-opacity:.75;
+opacity:.92;
+box-shadow:0 4px 16px rgba(0,0,0,.25);
 transition:opacity .2s, background .2s;
 }
 
 .intro-skip-btn:hover{
 opacity:1;
 background:rgba(93,224,214,.15);
+}
+
+.intro-skip-btn:focus-visible,
+.intro-start-btn:focus-visible{
+outline:2px solid #EAF9FA;
+outline-offset:4px;
 }
 
 /* ------------------------------
@@ -382,7 +490,8 @@ background:rgba(93,224,214,.15);
 @media (max-width:760px){
 .intro-turtle-wrap{ top:10%; right:6%; width:38vw; }
 .intro-palace{ width:78vw; opacity:.85; }
-.intro-text{ padding:20px; }
+.intro-text{ padding:20px; margin-bottom:4vh; }
+.intro-skip-btn{ top:max(12px, env(safe-area-inset-top)); right:max(12px, env(safe-area-inset-right)); }
 }
 
 /* ------------------------------
@@ -391,6 +500,8 @@ background:rgba(93,224,214,.15);
 
 @media (prefers-reduced-motion:reduce){
 .intro-rays,
+.intro-caustics,
+.intro-depth-haze,
 .intro-spirit,
 .intro-bubble,
 .intro-turtle,
@@ -399,11 +510,17 @@ background:rgba(93,224,214,.15);
 .intro-start-btn{
 animation:none !important;
 }
+.intro-turtle-wrap::before,
+#introOverlay::after{
+animation:none !important;
+}
 .intro-palace,
 .intro-turtle-wrap,
 .intro-fade{
 animation-duration:.6s !important;
+animation-delay:0s !important;
 transform:none !important;
 opacity:1 !important;
 }
+.intro-start-btn{ animation-delay:0s !important; }
 }

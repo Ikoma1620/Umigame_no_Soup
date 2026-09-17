@@ -33,10 +33,22 @@ async function getQAData() {
 getQAData().then(displayQAs);
 
 function setRichContent(el, raw) {
-  if (raw.includes("${")) {
-    el.innerHTML = raw.replace(/\$\{([\s\S]*?)\}/g, "$1");
+  if (!raw) {
+    el.textContent = "";
+    return;
+  }
+  
+  // 1. 独自記法 ${...} の展開
+  const processed = raw.replace(/\${([\s\S]*?)}/g, "$1");
+
+  // 2. サニタイズ (XSS対策)
+  if (window.DOMPurify) {
+    // DOMPurifyが読み込まれている場合: 安全なHTMLとして挿入
+    el.innerHTML = DOMPurify.sanitize(processed);
   } else {
-    el.textContent = raw;
+    // フォールバック: ライブラリがない場合はテキストとして挿入
+    // (HTMLタグは表示されてしまうが、スクリプト実行は防げる)
+    el.textContent = processed;
   }
 }
 
@@ -50,10 +62,12 @@ function displayQAs(groupedData) {
   const content = document.getElementById("content");
   content.innerHTML = "";
   content.style.textAlign = ""; // 前回描画時のインラインスタイルをリセット
+  content.setAttribute("aria-busy", "false");
 
   // groupedDataが空、またはCSV取得に失敗していた場合のフォールバック表示
   if (!groupedData || Object.keys(groupedData).length === 0) {
     const msg = document.createElement("p");
+    msg.className = "error-state";
     msg.textContent = "データを読み込めませんでした。";
     content.appendChild(msg);
     return;
@@ -61,8 +75,12 @@ function displayQAs(groupedData) {
 
   for (const type in groupedData) {
     const section = document.createElement("section");
+    section.dataset.category = type;
 
     const h2 = document.createElement("h2");
+    const sectionId = toSafeId(`section-${type}`);
+    h2.id = sectionId;
+    section.setAttribute("aria-labelledby", sectionId);
     h2.textContent = type;
     section.appendChild(h2);
 
@@ -71,11 +89,12 @@ function displayQAs(groupedData) {
 
     groupedData[type].forEach((item, idx) => {
       const qId = toSafeId(`ans-${type}-${idx}`);
+      const qButtonId = toSafeId(`question-${type}-${idx}`);
 
-      const qDiv = document.createElement("div");
+      const qDiv = document.createElement("button");
       qDiv.className = "question";
-      qDiv.setAttribute("role", "button");
-      qDiv.setAttribute("tabindex", "0");
+      qDiv.type = "button";
+      qDiv.id = qButtonId;
       qDiv.setAttribute("aria-expanded", "false");
       qDiv.setAttribute("aria-controls", qId);
 
@@ -95,6 +114,9 @@ function displayQAs(groupedData) {
       const wrap = document.createElement("div");
       wrap.className = "answer-wrap";
       wrap.id = qId;
+      wrap.setAttribute("role", "region");
+      wrap.setAttribute("aria-labelledby", qButtonId);
+      wrap.setAttribute("aria-hidden", "true");
 
       const inner = document.createElement("div");
       inner.className = "answer-inner";
@@ -109,15 +131,11 @@ function displayQAs(groupedData) {
       const toggle = () => {
         const isOpen = wrap.classList.toggle("open");
         qDiv.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        wrap.setAttribute("aria-hidden", isOpen ? "false" : "true");
+        updateQaStatus();
       };
 
       qDiv.addEventListener("click", toggle);
-      qDiv.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          toggle();
-        }
-      });
 
       list.appendChild(qDiv);
       list.appendChild(wrap);
@@ -126,4 +144,80 @@ function displayQAs(groupedData) {
     section.appendChild(list);
     content.appendChild(section);
   }
+
+  buildCategoryNav();
+  updateQaStatus();
 }
+
+function buildCategoryNav() {
+  const nav = document.getElementById("qaCategoryNav");
+  if (!nav) return;
+  nav.replaceChildren();
+
+  document.querySelectorAll("#content section").forEach((section) => {
+    const heading = section.querySelector("h2");
+    if (!heading) return;
+    const link = document.createElement("a");
+    link.href = `#${heading.id}`;
+    link.textContent = heading.textContent;
+    nav.appendChild(link);
+  });
+}
+
+function applyQaSearch(rawValue) {
+  const term = rawValue.trim().toLocaleLowerCase();
+
+  document.querySelectorAll("#content section").forEach((section) => {
+    let visibleCount = 0;
+    section.querySelectorAll(".question").forEach((question) => {
+      const answer = document.getElementById(question.getAttribute("aria-controls"));
+      const haystack = `${question.textContent} ${answer?.textContent || ""}`.toLocaleLowerCase();
+      const matched = !term || haystack.includes(term);
+      question.classList.toggle("qa-hidden", !matched);
+      if (matched) {
+        visibleCount += 1;
+      } else {
+        question.setAttribute("aria-expanded", "false");
+        answer?.classList.remove("open");
+        answer?.setAttribute("aria-hidden", "true");
+      }
+    });
+    section.classList.toggle("qa-hidden", visibleCount === 0);
+  });
+
+  updateQaStatus();
+}
+
+function setAllQuestions(open) {
+  document.querySelectorAll(".question").forEach((question) => {
+    if (question.classList.contains("qa-hidden")) return;
+    const answer = document.getElementById(question.getAttribute("aria-controls"));
+    if (!answer) return;
+    question.setAttribute("aria-expanded", open ? "true" : "false");
+    answer.classList.toggle("open", open);
+    answer.setAttribute("aria-hidden", open ? "false" : "true");
+  });
+  updateQaStatus();
+}
+
+function updateQaStatus() {
+  const status = document.getElementById("qaStatus");
+  if (!status) return;
+  const questions = [...document.querySelectorAll(".question")];
+  const visibleQuestions = questions.filter((question) => !question.classList.contains("qa-hidden"));
+  const opened = visibleQuestions.filter((question) => question.getAttribute("aria-expanded") === "true").length;
+  status.textContent = visibleQuestions.length === questions.length
+    ? `${questions.length}件のQ&A｜開いている項目 ${opened}件`
+    : `${visibleQuestions.length}件表示（全${questions.length}件）｜開いている項目 ${opened}件`;
+}
+
+document.getElementById("expandAllButton")?.addEventListener("click", () => setAllQuestions(true));
+document.getElementById("collapseAllButton")?.addEventListener("click", () => setAllQuestions(false));
+document.getElementById("qaSearch")?.addEventListener("input", (event) => applyQaSearch(event.target.value));
+document.getElementById("clearQaSearch")?.addEventListener("click", () => {
+  const search = document.getElementById("qaSearch");
+  if (!search) return;
+  search.value = "";
+  applyQaSearch("");
+  search.focus();
+});

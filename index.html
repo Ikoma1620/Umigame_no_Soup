@@ -8,6 +8,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23030709'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="intro.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.5/purify.min.js"></script>
 </head>
 <body>
 
@@ -27,7 +28,7 @@
         <path class="palace-rock" d="M0,260 L0,190 Q70,140 150,165 L210,140 Q280,110 330,150 L420,125 Q480,105 540,140 L600,165 L600,260 Z"/>
 
         <!-- 鳥居 -->
-        <g class="torii-group">
+        <g class="torii-group" transform="translate(0 24)">
             <rect class="torii-part" x="70" y="150" width="10" height="70"/>
             <rect class="torii-part" x="150" y="150" width="10" height="70"/>
             <rect class="torii-part" x="55" y="132" width="140" height="10" rx="2"/>
@@ -109,7 +110,7 @@
 <button class="qa-button" id="qaButton" type="button">Q&Aを開く</button>
 </header>
 
-<div class="question-display">
+<div class="question-display" aria-live="polite" aria-atomic="true">
 <span class="question-label">
         問題
 </span>
@@ -123,31 +124,31 @@
 <strong>絞り込み</strong><br>
 <h4>正誤</h4>
     <div class="custom-select" id="correctnessSelect">
-    <div class="custom-select-trigger" data-value="all">すべて</div>
-    <ul class="custom-select-options">
-        <li data-value="all" class="opt-all">すべて</li>
-        <li data-value="はい" class="opt-correct">はい</li>
-        <li data-value="どちらでもない" class="opt-neutral">どちらでもない</li>
-        <li data-value="いいえ" class="opt-wrong">いいえ</li>
+    <div class="custom-select-trigger" data-value="all" role="combobox" tabindex="0" aria-haspopup="listbox" aria-expanded="false">すべて</div>
+    <ul class="custom-select-options" role="listbox" aria-label="正誤の絞り込み">
+        <li data-value="all" class="opt-all" role="option">すべて</li>
+        <li data-value="はい" class="opt-correct" role="option">はい</li>
+        <li data-value="いいえ" class="opt-wrong" role="option">いいえ</li>
     </ul>
     <select id="filterCorrectness" hidden>
         <option value="all">すべて</option>
         <option value="はい">はい</option>
-        <option value="どちらでもない">どちらでもない</option>
         <option value="いいえ">いいえ</option>
     </select>
     </div>
 <h4>関連度</h4>
   <div class="custom-select" id="qualitySelect">
-  <div class="custom-select-trigger" data-value="all">すべて</div>
-  <ul class="custom-select-options">
-    <li data-value="all" class="opt-all">すべて</li>
-    <li data-value="いい質問" class="opt-good">いい質問</li>
-    <li data-value="関係ない" class="opt-bad">関係ない</li>
+  <div class="custom-select-trigger" data-value="all" role="combobox" tabindex="0" aria-haspopup="listbox" aria-expanded="false">すべて</div>
+  <ul class="custom-select-options" role="listbox" aria-label="関連度の絞り込み">
+    <li data-value="all" class="opt-all" role="option">すべて</li>
+    <li data-value="いい質問" class="opt-good" role="option">いい質問</li>
+    <li data-value="どちらでもない" class="opt-neutral" role="option">どちらでもない</li>
+    <li data-value="関係ない" class="opt-bad" role="option">関係ない</li>
   </ul>
   <select id="filterQuality" hidden>
     <option value="all">すべて</option>
     <option value="いい質問">いい質問</option>
+    <option value="どちらでもない">どちらでもない</option>
     <option value="関係ない">関係ない</option>
   </select>
 </div>
@@ -167,10 +168,13 @@
 
 <strong>ニックネームで確認</strong>
 
+<label class="sr-only" for="nicknameInput">ニックネーム</label>
 <input
 id="nicknameInput"
 type="text"
-placeholder="ニックネームを入力">
+placeholder="ニックネームを入力"
+autocomplete="nickname"
+enterkeyhint="search">
 
 <button id="nicknameSearchButton" type="button">
 確認する
@@ -178,7 +182,9 @@ placeholder="ニックネームを入力">
 
 <div
 class="results"
-id="nicknameResults">
+id="nicknameResults"
+aria-live="polite"
+aria-atomic="true">
 </div>
 
 </div>
@@ -187,7 +193,9 @@ id="nicknameResults">
 <div class="form-embed">
 
 <iframe
-src="https://forms.gle/PsjU6uP2qnVAz5738">
+src="https://forms.gle/PsjU6uP2qnVAz5738"
+title="回答フォーム"
+loading="lazy">
 </iframe>
 
 </div>
@@ -198,32 +206,20 @@ src="https://forms.gle/PsjU6uP2qnVAz5738">
 </div>
 
 
-<div class="overlay" id="qaOverlay">
+<div class="overlay" id="qaOverlay" role="dialog" aria-modal="true" aria-labelledby="qaDialogTitle" aria-hidden="true">
   <div class="overlay-content">
+    <h2 id="qaDialogTitle" class="sr-only">Q&amp;A一覧</h2>
     <button class="close-btn" id="closeQaButton" type="button">× 閉じる</button>
     <iframe 
       id="qaIframe"
       src="./question.html"
       width="100%" 
       height="100%" 
-      frameborder="0">
+      frameborder="0"
+      title="Q&amp;A一覧">
     </iframe>
   </div>
 </div>
-
-<div class="overlay" id="autoOverlay">
-  <div class="overlay-content">
-    <button class="close-btn" id="closeAutoButton" type="button">× 閉じる</button>
-    <iframe 
-      id="targetIframe" 
-      src=""
-      width="100%" 
-      height="100%" 
-      frameborder="0">
-    </iframe>
-  </div>
-</div>
-
 
 <script src="script.js" type="module"></script>
 <script src="intro.js"></script>

@@ -80,8 +80,6 @@
     document.body.classList.add("intro-active");
     startBubbles();
 
-    // 開始ボタンにフォーカスを当てて操作しやすくする
-    window.setTimeout(function () {
-        if (startBtn) startBtn.focus();
-    }, 4600);
+    // 演出を待たずに開始ボタンへフォーカスを移し、キーボードでもすぐ操作できるようにする
+    if (startBtn) startBtn.focus();
 })();

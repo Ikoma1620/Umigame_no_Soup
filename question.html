@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Q&A一覧</title>
+    <title>よくある質問｜案内役はウミガメ</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
@@ -62,7 +62,7 @@
 
       header.top {
         text-align: center;
-        margin-bottom: 44px;
+        margin-bottom: 28px;
       }
 
       h1 {
@@ -97,9 +97,53 @@
         color: var(--text-sub);
       }
 
+      .qa-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 0 0 28px;
+        padding: 12px 14px;
+        background: rgba(12, 26, 38, 0.78);
+        border: 1px solid var(--line-soft);
+        border-radius: 10px;
+      }
+
+      .qa-toolbar p {
+        margin: 0;
+        color: var(--text-sub);
+        font-size: 0.86em;
+      }
+
+      .qa-actions {
+        display: flex;
+        flex: none;
+        gap: 8px;
+      }
+
+      .qa-actions button {
+        border: 1px solid rgba(111, 216, 199, 0.35);
+        border-radius: 999px;
+        padding: 7px 11px;
+        background: rgba(111, 216, 199, 0.08);
+        color: var(--teal-bright);
+        font: inherit;
+        font-size: 0.78em;
+        cursor: pointer;
+      }
+
+      .qa-actions button:hover,
+      .qa-actions button:focus-visible {
+        background: rgba(111, 216, 199, 0.18);
+        outline: 2px solid var(--teal-bright);
+        outline-offset: 2px;
+      }
+
       section {
         margin-top: 40px;
       }
+
+      section:first-child { margin-top: 0; }
 
       h2 {
         display: flex;
@@ -114,6 +158,10 @@
         padding: 10px 16px;
         margin: 0 0 16px;
         letter-spacing: 0.06em;
+        position: sticky;
+        top: 10px;
+        z-index: 2;
+        box-shadow: 0 8px 18px rgba(3, 8, 16, 0.18);
       }
 
       h2::before {
@@ -146,6 +194,9 @@
         font-size: 1em;
         font-weight: 500;
         color: var(--text-main);
+        text-align: left;
+        font-family: inherit;
+        width: 100%;
         transition: background 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
       }
 
@@ -163,6 +214,7 @@
 
       .question .qtext {
         flex: 1;
+        line-height: 1.65;
       }
 
       .chevron {
@@ -198,6 +250,7 @@
         border-radius: 0 8px 8px 0;
         color: var(--text-sub);
         font-size: 0.96em;
+        line-height: 1.85;
       }
 
       .answer :is(p) { margin: 0 0 0.8em; }
@@ -208,23 +261,366 @@
         text-align: center;
       }
 
+      .loading-state,
+      .error-state {
+        padding: 32px 18px;
+        border: 1px dashed var(--line-soft);
+        border-radius: 10px;
+        color: var(--text-sub);
+      }
+
       @media (max-width: 480px) {
         h1 { font-size: 1.5em; }
         .question { padding: 12px 14px; font-size: 0.96em; }
+        body { padding: 32px 12px 64px; }
+        .qa-toolbar { align-items: flex-start; flex-direction: column; }
+        .qa-actions { width: 100%; }
+        .qa-actions button { flex: 1; }
+        h2 { top: 6px; padding: 9px 12px; }
       }
 
       @media (prefers-reduced-motion: reduce) {
         * { transition: none !important; }
+      }
+
+      /* 情報を探すことに集中できる、明るくシンプルなQ&Aレイアウト */
+      :root {
+        --qa-ink: #172033;
+        --qa-muted: #667085;
+        --qa-blue: #2563eb;
+        --qa-blue-soft: #eff6ff;
+        --qa-line: #dbe3ef;
+        --qa-surface: #ffffff;
+      }
+
+      body {
+        background: #f4f7fb;
+        color: var(--qa-ink);
+        line-height: 1.7;
+        padding: 0 18px 72px;
+      }
+
+      body::before { display: none; }
+
+      .page { max-width: 900px; }
+
+      header.top {
+        margin: 0 -18px 20px;
+        padding: 44px max(18px, calc((100% - 864px) / 2)) 34px;
+        text-align: left;
+        background: #172b4d;
+        color: #fff;
+      }
+
+      .page-kicker {
+        margin: 0 0 9px;
+        color: #a8c7ff;
+        font-size: .76em;
+        font-weight: 700;
+        letter-spacing: .16em;
+      }
+
+      h1 {
+        margin: 0;
+        color: #fff;
+        font-family: "Noto Sans JP", "Yu Gothic", sans-serif;
+        font-size: clamp(1.8rem, 4vw, 2.5rem);
+        letter-spacing: .04em;
+        text-shadow: none;
+      }
+
+      .page-lead {
+        max-width: 620px;
+        margin: 12px 0 0;
+        color: #d9e5fa;
+        font-size: .95em;
+      }
+
+      .qa-toolbar,
+      .qa-search-box {
+        background: var(--qa-surface);
+        border: 1px solid var(--qa-line);
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(20, 40, 75, .06);
+      }
+
+      .qa-toolbar {
+        position: sticky;
+        top: 10px;
+        z-index: 10;
+        margin: 0 0 14px;
+        padding: 13px 16px;
+      }
+
+      .qa-toolbar-copy {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+
+      .qa-toolbar-copy strong {
+        color: var(--qa-ink);
+        font-size: .9em;
+      }
+
+      .qa-toolbar-copy span {
+        color: var(--qa-muted);
+        font-size: .76em;
+      }
+
+      .qa-actions button {
+        border: 1px solid #c9d6e8;
+        background: #fff;
+        color: #31527f;
+        font-size: .78em;
+      }
+
+      .qa-actions button:hover,
+      .qa-actions button:focus-visible {
+        background: var(--qa-blue-soft);
+        color: var(--qa-blue);
+        outline: 2px solid #93b4f7;
+      }
+
+      .qa-search-box {
+        margin-bottom: 14px;
+        padding: 15px 16px;
+      }
+
+      .qa-search-box label {
+        display: block;
+        margin-bottom: 7px;
+        color: var(--qa-ink);
+        font-size: .82em;
+        font-weight: 700;
+      }
+
+      .qa-search-row {
+        display: flex;
+        gap: 8px;
+      }
+
+      #qaSearch {
+        min-width: 0;
+        flex: 1;
+        border: 1px solid #c9d6e8;
+        border-radius: 8px;
+        padding: 10px 12px;
+        background: #f8fafc;
+        color: var(--qa-ink);
+        font: inherit;
+        font-size: .9em;
+      }
+
+      #qaSearch:focus-visible {
+        border-color: var(--qa-blue);
+        outline: 3px solid #dbeafe;
+        outline-offset: 0;
+      }
+
+      #clearQaSearch {
+        border: 1px solid #c9d6e8;
+        border-radius: 8px;
+        padding: 0 14px;
+        background: #fff;
+        color: #31527f;
+        font: inherit;
+        font-size: .82em;
+        cursor: pointer;
+      }
+
+      #clearQaSearch:hover,
+      #clearQaSearch:focus-visible { background: var(--qa-blue-soft); }
+
+      .qa-category-nav {
+        display: flex;
+        gap: 8px;
+        margin: 0 0 24px;
+        overflow-x: auto;
+        padding: 2px 2px 8px;
+        scrollbar-width: thin;
+      }
+
+      .qa-category-nav a {
+        flex: none;
+        border: 1px solid #c9d6e8;
+        border-radius: 999px;
+        padding: 7px 13px;
+        background: #fff;
+        color: #31527f;
+        font-size: .78em;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .qa-category-nav a:hover,
+      .qa-category-nav a:focus-visible {
+        border-color: var(--qa-blue);
+        background: var(--qa-blue-soft);
+        color: var(--qa-blue);
+        outline: none;
+      }
+
+      section {
+        margin-top: 30px;
+        scroll-margin-top: 78px;
+      }
+
+      section:first-child { margin-top: 0; }
+
+      h2 {
+        position: static;
+        display: flex;
+        margin: 0 0 10px;
+        padding: 0 0 8px;
+        border: 0;
+        border-bottom: 2px solid #dbeafe;
+        background: transparent;
+        box-shadow: none;
+        color: #244675;
+        font-family: "Noto Sans JP", "Yu Gothic", sans-serif;
+        font-size: 1.05em;
+        font-weight: 700;
+        letter-spacing: .02em;
+      }
+
+      h2::before { width: 7px; height: 7px; background: var(--qa-blue); box-shadow: none; }
+
+      .qa-list { gap: 8px; }
+
+      .question {
+        appearance: none;
+        -webkit-appearance: none;
+        display: flex;
+        min-height: 54px;
+        align-items: center;
+        border: 1px solid var(--qa-line);
+        border-left: 4px solid #8cb4f8;
+        border-radius: 9px;
+        padding: 13px 16px;
+        background: var(--qa-surface);
+        color: var(--qa-ink);
+        box-shadow: 0 2px 7px rgba(20, 40, 75, .04);
+        font-size: .94em;
+        font-weight: 600;
+        line-height: 1.55;
+      }
+
+      .question:hover,
+      .question:focus-visible {
+        border-color: #9bbcf3;
+        border-left-color: var(--qa-blue);
+        background: #f8fbff;
+        box-shadow: 0 5px 16px rgba(37, 99, 235, .11);
+      }
+
+      .question[aria-expanded="true"] {
+        border-left-color: var(--qa-blue);
+        background: var(--qa-blue-soft);
+      }
+
+      .question .qtext { color: inherit; }
+
+      .chevron {
+        width: 20px;
+        height: 20px;
+        margin-left: 8px;
+        color: #5b83c4;
+      }
+
+      .answer-wrap { margin-left: 10px; }
+
+      .answer {
+        margin: 4px 0 3px;
+        border: 1px solid #dbe3ef;
+        border-left: 4px solid #f2b84b;
+        border-radius: 0 9px 9px 9px;
+        padding: 16px 18px;
+        background: #fff;
+        color: #44546b;
+        font-size: .9em;
+        line-height: 1.85;
+        box-shadow: 0 2px 8px rgba(20, 40, 75, .04);
+      }
+
+      .answer a { color: var(--qa-blue); font-weight: 700; }
+
+      #content { color: var(--qa-muted); text-align: left; }
+
+      .loading-state,
+      .error-state {
+        background: #fff;
+        border: 1px solid var(--qa-line);
+        color: var(--qa-muted);
+      }
+
+      .qa-hidden { display: none !important; }
+
+      /* Q&Aの質問カードはホバー・フォーカス時に操作位置を示す */
+      .question:hover {
+        border-color: #9bbcf3;
+        border-left-color: var(--qa-blue);
+        background: #f8fbff;
+        box-shadow: 0 5px 16px rgba(37, 99, 235, .11);
+      }
+
+      .question:focus-visible {
+        border-color: #9bbcf3;
+        border-left-color: var(--qa-blue);
+        background: #f8fbff;
+        box-shadow: 0 5px 16px rgba(37, 99, 235, .11);
+        outline: 2px solid #93b4f7;
+        outline-offset: 2px;
+      }
+
+      .question[aria-expanded="true"]:hover,
+      .question[aria-expanded="true"]:focus-visible {
+        border-left-color: var(--qa-blue);
+        background: var(--qa-blue-soft);
+      }
+
+      @media (max-width: 600px) {
+        body { padding: 0 12px 52px; }
+        header.top { margin: 0 -12px 14px; padding: 34px 16px 27px; }
+        .qa-toolbar { top: 6px; padding: 11px 12px; }
+        .qa-toolbar-copy span { display: none; }
+        .qa-actions { width: 100%; }
+        .qa-actions button { flex: 1; padding: 7px 5px; }
+        .qa-search-box { padding: 13px 12px; }
+        .question { padding: 12px 13px; font-size: .9em; }
+        .answer-wrap { margin-left: 5px; }
+        .answer { padding: 13px 14px; font-size: .88em; }
       }
     </style>
   </head>
   <body>
     <div class="page">
       <header class="top">
-        <h1>Q&amp;A一覧</h1>
-        <div class="torii-rule"><span>質問をタップして回答を表示</span></div>
+        <p class="page-kicker">GUIDE / HELP</p>
+        <h1>よくある質問</h1>
+        <p class="page-lead">知りたい項目を検索するか、質問を選んで回答を確認してください。</p>
       </header>
-      <div id="content">読み込み中...</div>
+      <div class="qa-toolbar" aria-label="Q&Aの操作">
+        <div class="qa-toolbar-copy">
+          <strong id="qaStatus">Q&amp;Aを読み込み中...</strong>
+          <span>回答をクリックすると詳細が表示されます。</span>
+        </div>
+        <div class="qa-actions">
+          <button id="expandAllButton" type="button">すべて開く</button>
+          <button id="collapseAllButton" type="button">すべて閉じる</button>
+        </div>
+      </div>
+      <div class="qa-search-box">
+        <label for="qaSearch">質問を検索</label>
+        <div class="qa-search-row">
+          <input id="qaSearch" type="search" placeholder="例：ニックネーム、遊び方、トラブル" autocomplete="off">
+          <button id="clearQaSearch" type="button" aria-label="検索条件をクリア">クリア</button>
+        </div>
+      </div>
+      <nav id="qaCategoryNav" class="qa-category-nav" aria-label="質問カテゴリ"></nav>
+      <main id="content" aria-live="polite" aria-busy="true">
+        <p class="loading-state">Q&amp;Aを読み込み中...</p>
+      </main>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>

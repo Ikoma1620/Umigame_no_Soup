@@ -7,7 +7,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const state = { data: [], secretKey: "", lastRenderKey: "", lastProcessedUrl: "" };
+const state = { data: [], lastRenderKey: "" };
 const $ = (selector) => document.querySelector(selector);
 
 function setOverlay(id, isOpen) {
@@ -17,9 +17,6 @@ function setOverlay(id, isOpen) {
 
 function openQaOverlay() { setOverlay("qaOverlay", true); }
 function closeQaOverlay() { setOverlay("qaOverlay", false); }
-function openAutoOverlay() { setOverlay("autoOverlay", true); }
-function closeAutoOverlay() { setOverlay("autoOverlay", false); }
-
 function createBadge(value, type) {
   const badge = document.createElement("span");
   const className = type === "correctness"
@@ -63,7 +60,7 @@ function applyFilter() {
     tr.appendChild(correctnessCell);
 
     const qualityCell = document.createElement("td");
-    qualityCell.className = { "いい質問": "good", 関係ない: "bad" }[quality] || "";
+    qualityCell.className = { "いい質問": "good", "どちらでもない": "neither", 関係ない: "bad" }[quality] || "";
     qualityCell.appendChild(createBadge(quality, "quality"));
     tr.appendChild(qualityCell);
     tbody.appendChild(tr);
@@ -83,18 +80,17 @@ function searchByNickname() {
   }
 
   const rows = state.data.slice(1);
-  const isSecretSearch = nickname === state.secretKey;
-  const matchedRows = isSecretSearch ? rows.filter((row) => row[7] === "正解") : rows.filter((row) => row[3] === nickname);
+  const matchedRows = rows.filter((row) => row[3] === nickname);
 
   if (matchedRows.length === 0) {
-    results.textContent = isSecretSearch ? "正解者はいません。" : "該当する回答が見つかりません。";
+    results.textContent = "該当する回答が見つかりません。";
     return;
   }
 
   const list = document.createElement("ul");
   matchedRows.forEach((row) => {
     const item = document.createElement("li");
-    item.textContent = isSecretSearch ? row[3] : `質問: ${row[2]} / 解答結果: ${row[7]}`;
+    item.textContent = `質問: ${row[2]} / 解答結果: ${row[7]}`;
     list.appendChild(item);
   });
   results.appendChild(list);
@@ -107,7 +103,6 @@ function updateMarquee() {
 
 function renderTable(payload) {
   state.data = payload.data || [];
-  state.secretKey = payload.secret || "";
   $("#mainQuestion").textContent = payload.question || "";
 
   const renderKey = JSON.stringify({ data: state.data, question: payload.question || "" });
@@ -116,21 +111,6 @@ function renderTable(payload) {
     updateMarquee();
     state.lastRenderKey = renderKey;
   }
-  updateAutoOverlay(payload.forcedDisplay || "");
-}
-
-function updateAutoOverlay(forcedDisplay) {
-  const iframe = $("#targetIframe");
-  if (!/^https?:\/\//.test(forcedDisplay)) {
-    closeAutoOverlay();
-    iframe.src = "";
-    state.lastProcessedUrl = "";
-    return;
-  }
-  if (state.lastProcessedUrl === forcedDisplay) return;
-  state.lastProcessedUrl = forcedDisplay;
-  iframe.src = forcedDisplay;
-  openAutoOverlay();
 }
 
 // --- コスト最小化: 集約ドキュメント (game/current) のみをリアルタイム監視 ---
@@ -155,9 +135,7 @@ onSnapshot(doc(db, "game", "current"), (docSnap) => {
 
   renderTable({
     data: [["timestamp", "type", "content", "nickname", "", "isCorrect", "relevance", "isCorrect"], ...rows],
-    secret: docData.secretKey || "",
-    question: docData.mainQuestion || "",
-    forcedDisplay: docData.forcedDisplay || ""
+    question: docData.mainQuestion || ""
   });
 }, (error) => console.error("Firestoreリアルタイム取得エラー:", error));
 
@@ -195,7 +173,6 @@ function initCustomSelect(containerId) {
 
 $("#qaButton").addEventListener("click", openQaOverlay);
 $("#closeQaButton").addEventListener("click", closeQaOverlay);
-$("#closeAutoButton").addEventListener("click", closeAutoOverlay);
 $("#filterButton").addEventListener("click", applyFilter);
 $("#nicknameSearchButton").addEventListener("click", searchByNickname);
 $("#nicknameInput").addEventListener("keydown", (event) => {

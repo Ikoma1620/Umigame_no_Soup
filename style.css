@@ -23,6 +23,18 @@ outline:2px solid #5CE0D6;
 outline-offset:2px;
 }
 
+.sr-only{
+position:absolute;
+width:1px;
+height:1px;
+padding:0;
+margin:-1px;
+overflow:hidden;
+clip:rect(0,0,0,0);
+white-space:nowrap;
+border:0;
+}
+
 body{
 font-family:"Noto Sans JP",sans-serif;
 
@@ -34,6 +46,10 @@ background:
 
 color:#CDEFF2;
 overflow:hidden;
+}
+
+body.overlay-open{
+  overflow:hidden;
 }
 
 /* ==============================
@@ -356,6 +372,12 @@ background:rgba(61,218,208,.09);
 
 }
 
+.empty-state{
+  padding:28px 12px;
+  text-align:center;
+  color:#9fc7cb;
+}
+
 /* ==============================
 判定色（発光する珊瑚・提灯をイメージ）
 ============================== */
@@ -469,7 +491,24 @@ font-size:14px;
 line-height:1.6;
 
 color:#D6F1F2;
+width:100%;
+max-width:100%;
+min-width:0;
+box-sizing:border-box;
+overflow-wrap:anywhere;
+word-break:break-word;
 
+}
+
+.results ul{
+margin:0;
+padding-left:1.25em;
+}
+
+.results li{
+max-width:100%;
+overflow-wrap:anywhere;
+word-break:break-word;
 }
 
 .right-panel strong{
@@ -484,6 +523,8 @@ color:#5CE0D6;
 
 .nickname-search{
 margin:12px;
+min-width:0;
+overflow:hidden;
 }
 
 #nicknameInput{
@@ -826,6 +867,12 @@ border:1px solid rgba(168,105,224,.35);
   opacity:.7;
 }
 
+.custom-select-trigger:hover,
+.custom-select-trigger:focus-visible{
+  border-color:rgba(61,218,208,.9);
+  box-shadow:0 0 0 2px rgba(61,218,208,.15), 0 0 8px rgba(61,218,208,.18) inset;
+}
+
 /* トリガーの状態別カラー */
 .custom-select-trigger.state-correct{
   background-color:rgba(58,196,140,.20);
@@ -889,6 +936,14 @@ border:1px solid rgba(168,105,224,.35);
   transition:background-color .12s ease, color .12s ease;
   color:#aaa;
 }
+
+.custom-select-options li:hover,
+.custom-select-options li:focus-visible,
+.custom-select-options li.selected{
+  background:rgba(61,218,208,.16);
+  color:#fff;
+  outline:none;
+}
 .custom-select-options li:last-child{ margin-bottom:0; }
 
 .custom-select-options li.opt-all{
@@ -897,6 +952,123 @@ border:1px solid rgba(168,105,224,.35);
 .custom-select-options li.opt-all:hover{
   background:rgba(255,255,255,.08);
   color:#fff;
+}
+
+/* 小さい画面では、検索・フォームを縦に並べて横スクロールを防ぐ */
+@media (max-width: 900px){
+  html,
+  body{
+    height:auto;
+    min-height:100%;
+  }
+
+  body{
+    overflow:auto;
+    padding-bottom:34px;
+  }
+
+  .main-container{
+    display:block;
+    height:auto;
+    min-height:100vh;
+  }
+
+  .left-panel,
+  .right-panel{
+    min-height:0;
+    overflow:visible;
+  }
+
+  .left-panel{
+    border-right:0;
+    border-bottom:1px solid rgba(61,218,208,.35);
+  }
+
+  #tableWrapper{
+    max-height:52vh;
+    min-height:180px;
+  }
+
+  .right-panel{
+    padding-bottom:42px;
+  }
+
+  .form-embed{
+    /* Googleフォームは内容量が多いため、スマホでは固定の短い高さにしない */
+    height:1000px;
+    min-height:1000px;
+    flex:none;
+  }
+}
+
+@media (max-width: 560px){
+  header{
+    align-items:flex-start;
+    gap:10px;
+  }
+
+  header h1{
+    font-size:20px;
+  }
+
+  .qa-button{
+    padding:8px 12px;
+    white-space:nowrap;
+  }
+
+  .question-display{
+    font-size:15px;
+    padding:14px;
+  }
+
+  .filter-container{
+    align-items:stretch;
+    gap:8px;
+  }
+
+  .filter-container strong,
+  .filter-container h4{
+    flex-basis:100%;
+  }
+
+  .custom-select{
+    flex:1 1 140px;
+    width:auto;
+  }
+
+  .filter-container button{
+    flex:1 1 100%;
+    margin-left:0;
+  }
+
+  table{
+    min-width:510px;
+  }
+
+  th,
+  td{
+    font-size:14px;
+    padding:9px 8px;
+  }
+
+  .overlay-content{
+    width:calc(100% - 20px);
+    height:calc(100% - 24px);
+    border-radius:12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .marquee span{
+    animation:none;
+    padding-left:12px;
+  }
+}
+
+@media (max-width: 900px){
+  body.overlay-open{
+    overflow:hidden;
+  }
 }
 
 /* 項目別カラー(常時薄く色付け+ホバーで強調) */
@@ -938,6 +1110,12 @@ border:1px solid rgba(168,105,224,.35);
 }
 .custom-select-options li.opt-bad:hover{
   background:rgba(168,105,224,.25);
+}
+
+/* メイン画面の質問一覧は、ホバーで行の色を変えない */
+#output tbody tr:hover,
+#output tbody tr:nth-child(even):hover{
+  background:transparent;
 }
 
 /* 選択中の項目にマーク */
